@@ -13,18 +13,18 @@ private:
 public:
     Address(const std::string& c, const std::string& s, int h, int a) : city(c), street(s), house(h), apartment(a) {}
 
-    std::string get_output_address() const 
+    std::string get_output_address() const
     {
         return city + ", " + street + ", " + std::to_string(house) + ", " + std::to_string(apartment);
     }
 
-    const std::string& get_city() const 
+    const std::string& get_city() const
     {
         return city;
     }
 };
 
-void sort_addresses(Address** addresses, int size) 
+void sort_addresses(Address** addresses, int size)
 {
     for (int i = 0; i < size - 1; i++)
     {
@@ -32,7 +32,6 @@ void sort_addresses(Address** addresses, int size)
         {
             if (addresses[j]->get_city() > addresses[j + 1]->get_city())
             {
-                // Обмен элементов
                 Address* temp = addresses[j];
                 addresses[j] = addresses[j + 1];
                 addresses[j + 1] = temp;
@@ -41,12 +40,12 @@ void sort_addresses(Address** addresses, int size)
     }
 }
 
-int main() 
+int main()
 {
     setlocale(LC_ALL, "rus");
 
     std::ifstream in_file("in.txt");
-    if (!in_file.is_open()) 
+    if (!in_file.is_open())
     {
         std::cerr << "Ошибка открытия файла in.txt" << std::endl;
         return 1;
@@ -55,40 +54,59 @@ int main()
     int n;
     in_file >> n;
 
+    std::string temp;
+    std::getline(in_file, temp);
+
     Address** addresses = new Address * [n];
+    bool success = true;
+    int created_count = 0;
 
-    for (int i = 0; i < n; i++)
+    try
     {
-        std::string city, street;
-        int house, apartment;
+        for (int i = 0; i < n; i++)
+        {
+            std::string city, street;
+            int house, apartment;
 
-        std::getline(in_file, city);
-        std::getline(in_file, city);
-        std::getline(in_file, street);
+            std::getline(in_file, city);
+            std::getline(in_file, street);
 
-        in_file >> house;
-        in_file >> apartment;
+            if (!(in_file >> house >> apartment))
+            {
+                throw std::runtime_error("Ошибка чтения числовых данных");
+            }
 
-        addresses[i] = new Address(city, street, house, apartment);
+            std::getline(in_file, temp);
+
+            addresses[i] = new Address(city, street, house, apartment);
+            created_count++;
+        }
     }
-
-    sort_addresses(addresses, n);
+    catch (...)
+    {
+        success = false;
+    }
 
     std::ofstream out_file("out.txt");
-    if (!out_file.is_open()) 
+    if (!out_file.is_open())
     {
         std::cerr << "Ошибка открытия файла out.txt" << std::endl;
-        return 1;
+        success = false;
     }
 
-    out_file << n << std::endl;
-
-    for (int i = 0; i < n; i++)
+    if (success)
     {
-        out_file << addresses[i]->get_output_address() << std::endl;
+        sort_addresses(addresses, n);
+
+        out_file << n << std::endl;
+
+        for (int i = 0; i < n; i++)
+        {
+            out_file << addresses[i]->get_output_address() << std::endl;
+        }
     }
 
-    for (int i = 0; i < n; i++) 
+    for (int i = 0; i < created_count; i++)
     {
         delete addresses[i];
     }
@@ -97,5 +115,5 @@ int main()
     in_file.close();
     out_file.close();
 
-    return 0;
+    return success ? 0 : 1;
 }

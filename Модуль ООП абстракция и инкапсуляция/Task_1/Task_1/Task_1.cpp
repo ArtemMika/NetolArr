@@ -2,8 +2,7 @@
 #include <fstream>
 #include <string>
 
-
-class Address 
+class Address
 {
 private:
     std::string city;
@@ -12,9 +11,9 @@ private:
     int apartment;
 
 public:
-    Address(const std::string& c, const std::string& s, int h, int a) : city(c), street(s), house(h), apartment(a)  {}
+    Address(const std::string& c, const std::string& s, int h, int a) : city(c), street(s), house(h), apartment(a) { }
 
-    std::string get_output_address() const 
+    std::string get_output_address() const
     {
         return city + ", " + street + ", " + std::to_string(house) + ", " + std::to_string(apartment);
     }
@@ -34,33 +33,55 @@ int main()
     int n;
     in_file >> n;
 
+    std::string temp;
+    std::getline(in_file, temp);
+
     Address** addresses = new Address * [n];
 
-    for (int i = 0; i < n; i++)
+    try
     {
-        std::string city, street;
-        int house, apartment;
+        for (int i = 0; i < n; i++)
+        {
+            std::string city, street;
+            int house, apartment;
 
-        std::getline(in_file, city);
-        std::getline(in_file, city);
-        std::getline(in_file, street);
+            std::getline(in_file, city);
+            std::getline(in_file, street);
+            in_file >> house >> apartment;
 
-        in_file >> house;
-        in_file >> apartment;
+            std::getline(in_file, temp);
 
-        addresses[i] = new Address(city, street, house, apartment);
+            addresses[i] = new Address(city, street, house, apartment);
+        }
+    }
+    catch (...)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (addresses[i]) delete addresses[i];
+        }
+        delete[] addresses;
+        in_file.close();
+        return 1;
     }
 
     std::ofstream out_file("out.txt");
-    if (!out_file.is_open()) 
+    if (!out_file.is_open())
     {
         std::cerr << "Ошибка открытия файла out.txt" << std::endl;
+
+        for (int i = 0; i < n; i++)
+        {
+            delete addresses[i];
+        }
+        delete[] addresses;
+        in_file.close();
         return 1;
     }
 
     out_file << n << std::endl;
 
-    for (int i = n - 1; i >= 0; i--) 
+    for (int i = n - 1; i >= 0; i--)
     {
         out_file << addresses[i]->get_output_address() << std::endl;
     }
