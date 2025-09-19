@@ -16,4 +16,4 @@ public:
     std::string get_name() const;
 };
 
-#endif // FIGURE_H
+#endif

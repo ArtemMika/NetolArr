@@ -14,32 +14,4 @@ public:
     void print_info() const override;
 };
 
-class Parallelogram : public Quadrangle
-{
-public:
-    Parallelogram(double a, double b, double A, double B);
-    void print_info() const override;
-};
-
-class Rectangle : public Parallelogram
-{
-public:
-    Rectangle(double a, double b);
-    void print_info() const override;
-};
-
-class Square : public Rectangle
-{
-public:
-    Square(double side);
-    void print_info() const override;
-};
-
-class Rhombus : public Parallelogram
-{
-public:
-    Rhombus(double side, double A, double B);
-    void print_info() const override;
-};
-
-#endif // QUADRANGLE_H
+#endif 
