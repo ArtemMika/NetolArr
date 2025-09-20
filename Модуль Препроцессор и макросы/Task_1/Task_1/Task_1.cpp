@@ -8,11 +8,6 @@
 #error Константа MODE не определена! Необходимо определить MODE перед компиляцией.
 #endif
 
-int add(int a, int b)
-{
-    return a + b;
-}
-
 int main()
 {
     setlocale(LC_ALL, "rus");
@@ -23,6 +18,8 @@ int main()
 #elif MODE == 1
     std::cout << "Работаю в боевом режиме" << std::endl;
     int num1, num2;
+
+    auto add = [](int a, int b) -> int { return a + b; };
 
     std::cout << "Введите число 1: ";
     std::cin >> num1;
