@@ -3,3 +3,4 @@ ConsoleApplication2 /
 .vs
 x64
 .sln
+out/build/x64-debug
