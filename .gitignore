@@ -1,6 +1,6 @@
 ConsoleApplication1 /
 ConsoleApplication2 /
+out /
 .vs
 x64
 .sln
-out/build/x64-debug
