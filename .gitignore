@@ -1,6 +1,15 @@
 ConsoleApplication1 /
 ConsoleApplication2 /
-out /
+out/
 .vs
 x64
 .sln
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
+CMakeScripts/
+Testing/
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+install_manifest.txt
