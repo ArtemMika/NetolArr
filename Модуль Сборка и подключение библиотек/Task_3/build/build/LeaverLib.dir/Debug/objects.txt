@@ -1,0 +1,1 @@
+C:/Users/Артем/Documents/C++/Модуль Сборка и подключение библиотек/Task_3/build/build/LeaverLib.dir/Debug/leaver.obj

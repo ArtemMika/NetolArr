@@ -1,29 +1,38 @@
-# Task_3/CMakeLists.txt
-cmake_minimum_required(VERSION 3.10)
+п»їcmake_minimum_required(VERSION 3.16)
 project(Task_3)
 
-# Находим библиотеку
-add_subdirectory(../LeaverLibrary)
+# РќР°СЃС‚СЂРѕР№РєР° РєРѕРјРїРёР»СЏС‚РѕСЂР°
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-# Определяем исходные файлы приложения
-set(APP_SOURCES
-    main.cpp
+# РЎРѕР·РґР°РЅРёРµ Р±РёР±Р»РёРѕС‚РµРєРё
+add_library(LeaverLib SHARED
+    Library/leaver.cpp
 )
 
-# Создаем исполняемый файл
-add_executable(ConsoleApp ${APP_SOURCES})
-
-# Настраиваем include директории
-target_include_directories(ConsoleApp PUBLIC
-    $
+# РќР°СЃС‚СЂРѕР№РєР° РїСѓС‚РµР№ РІРєР»СЋС‡РµРЅРёСЏ РґР»СЏ Р±РёР±Р»РёРѕС‚РµРєРё
+target_include_directories(LeaverLib PUBLIC
+    ${CMAKE_SOURCE_DIR}/Library
 )
 
-# Связываем приложение с библиотекой
-target_link_libraries(ConsoleApp PRIVATE Leaver)
+# РЎРѕР·РґР°РЅРёРµ РёСЃРїРѕР»РЅСЏРµРјРѕРіРѕ С„Р°Р№Р»Р°
+add_executable(Task_3
+    out/Task_3.cpp  # РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РїСѓС‚СЊ СѓРєР°Р·Р°РЅ РїСЂР°РІРёР»СЊРЅРѕ
+)
 
-# Настройки для Windows
+# РЎРІСЏР·С‹РІР°РЅРёРµ Р±РёР±Р»РёРѕС‚РµРєРё СЃ РїСЂРёР»РѕР¶РµРЅРёРµРј
+target_link_libraries(Task_3 PRIVATE LeaverLib)
+
+# РќР°СЃС‚СЂРѕР№РєР° РїСѓС‚РµР№ РІРєР»СЋС‡РµРЅРёСЏ РґР»СЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
+target_include_directories(Task_3 PUBLIC
+    ${CMAKE_SOURCE_DIR}/Library
+)
+
+# РќР°СЃС‚СЂРѕР№РєРё РґР»СЏ Windows
 if(WIN32)
-    set_target_properties(ConsoleApp PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    set_target_properties(LeaverLib PROPERTIES
+        WIN32_EXECUTABLE TRUE
+        DEBUG_POSTFIX d
     )
 endif()
