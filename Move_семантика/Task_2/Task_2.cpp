@@ -14,10 +14,10 @@ private:
         return c >= '0' && c <= '9';
     }
 
-    void remove_leading_zeros() 
+    void remove_leading_zeros()
     {
         size_t start = 0;
-        while (start < digits.length() - 1 && digits[start] == '0') 
+        while (start < digits.length() - 1 && digits[start] == '0')
         {
             ++start;
         }
@@ -33,24 +33,23 @@ public:
         }
 
         size_t start = 0;
-        if (num[0] == '-')
+
+        if (!num.empty() && num[0] == '-')
         {
             is_negative = true;
             start = 1;
         }
-        else if (num[0] == '+')
+        else if (!num.empty() && num[0] == '+')
         {
             start = 1;
         }
 
         if (start >= num.length())
-        {
             throw std::invalid_argument("Sign without digits");
-        }
 
         for (size_t i = start; i < num.length(); ++i)
         {
-            if (!is_digit(num[i])) 
+            if (!is_digit(num[i]))
             {
                 throw std::invalid_argument("Invalid character in number: " + std::string(1, num[i]));
             }
@@ -59,7 +58,7 @@ public:
         digits = num.substr(start);
         remove_leading_zeros();
 
-        if (digits == "0") 
+        if (digits == "0")
         {
             is_negative = false;
         }
@@ -71,9 +70,9 @@ public:
         other.is_negative = false;
     }
 
-    big_integer& operator=(big_integer&& other) noexcept 
+    big_integer& operator=(big_integer&& other) noexcept
     {
-        if (this != &other) 
+        if (this != &other)
         {
             digits = std::move(other.digits);
             is_negative = other.is_negative;
@@ -82,13 +81,29 @@ public:
         return *this;
     }
 
+    bool operator==(const big_integer& other) const
+    {
+        if (is_negative != other.is_negative)
+            return false;
+
+        return digits == other.digits;
+    }
+
+    bool operator!=(const big_integer& other) const
+    {
+        return !(*this == other);
+    }
+
     big_integer operator+(const big_integer& other) const
     {
-        if (is_negative != other.is_negative) 
+        if (is_negative != other.is_negative)
         {
             big_integer temp = other;
             temp.is_negative = !temp.is_negative;
-            return *this - temp;
+            if (is_negative)
+                return temp - *this;
+            else
+                return *this - temp;
         }
 
         std::string result;
@@ -103,31 +118,26 @@ public:
         num2.resize(max_len, '0');
 
         int carry = 0;
-        for (size_t i = 0; i < max_len; ++i) 
+        for (size_t i = 0; i < max_len; ++i)
         {
             int sum = (num1[i] - '0') + (num2[i] - '0') + carry;
             result.push_back('0' + (sum % 10));
             carry = sum / 10;
         }
 
-        if (carry) 
-        {
+        if (carry)
             result.push_back('0' + carry);
-        }
 
         std::reverse(result.begin(), result.end());
-
         big_integer res(result);
         res.is_negative = is_negative;
         return res;
     }
 
-    big_integer operator*(int multiplier) const 
+    big_integer operator*(int multiplier) const
     {
-        if (multiplier == 0) 
-        {
+        if (multiplier == 0)
             return big_integer("0");
-        }
 
         bool result_negative = is_negative ^ (multiplier < 0);
         multiplier = std::abs(multiplier);
@@ -137,14 +147,14 @@ public:
         std::reverse(num.begin(), num.end());
 
         int carry = 0;
-        for (char digit : num) 
+        for (char digit : num)
         {
             int product = (digit - '0') * multiplier + carry;
             result.push_back('0' + (product % 10));
             carry = product / 10;
         }
 
-        while (carry) 
+        while (carry)
         {
             result.push_back('0' + (carry % 10));
             carry /= 10;
@@ -157,31 +167,81 @@ public:
         return res;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const big_integer& num) 
+    big_integer operator-(const big_integer& other) const
     {
-        if (num.is_negative) 
+        if (is_negative == other.is_negative)
         {
-            os << '-';
+            std::string num1 = digits;
+            std::string num2 = other.digits;
+
+            size_t max_len = std::max(num1.length(), num2.length());
+            std::reverse(num1.begin(), num1.end());
+            std::reverse(num2.begin(), num2.end());
+
+            num1.resize(max_len, '0');
+            num2.resize(max_len, '0');
+
+            std::string result;
+            int borrow = 0;
+            for (size_t i = 0; i < max_len; ++i)
+            {
+                int diff = (num1[i] - '0') - (num2[i] - '0') - borrow;
+                if (diff < 0)
+                {
+                    diff += 10;
+                    borrow = 1;
+                }
+                else
+                {
+                    borrow = 0;
+                }
+                result.push_back('0' + diff);
+            }
+            std::reverse(result.begin(), result.end());
+
+            big_integer res(result);
+            res.remove_leading_zeros();
+            return res;
         }
+        else
+        {
+            big_integer temp = other;
+            temp.is_negative = !temp.is_negative;
+            return *this + temp;
+        }
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const big_integer& num)
+    {
+        if (num.is_negative)
+            os << '-';
         os << num.digits;
         return os;
     }
 
     big_integer(const big_integer&) = default;
-
     big_integer& operator=(const big_integer&) = default;
 };
 
-int main() 
+int main()
 {
-    auto number1 = big_integer("114575");
-    auto number2 = big_integer("78524");
-    auto result = number1 + number2;
-    std::cout << result << std::endl; // 193099
+    try {
+        auto number1 = big_integer("114575");
+        auto number2 = big_integer("78524");
+        auto result = number1 + number2;
+        std::cout << result << std::endl; // 193099
 
-    auto number3 = big_integer("12345");
-    auto result2 = number3 * 123;
-    std::cout << result2 << std::endl; // 1518435
+        auto number3 = big_integer("12345");
+        auto result2 = number3 * 123;
+        std::cout << result2 << std::endl; // 1518435
+
+        auto result3 = number1 - number2;
+        std::cout << result3 << std::endl; // 36051
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }
